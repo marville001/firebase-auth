@@ -3,7 +3,14 @@ import { app, firebaseStore, firebaseAuth } from "./init.js";
 
 const auth = firebaseAuth.getAuth();
 
-console.log(firebaseAuth);
+// listen for auth status changes
+firebaseAuth.onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("user logged in: ", user);
+    } else {
+        console.log("user logged out");
+    }
+});
 
 const signupForm = document.querySelector("#signup-form");
 signupForm.addEventListener("submit", (e) => {
@@ -17,7 +24,6 @@ signupForm.addEventListener("submit", (e) => {
     firebaseAuth
         .createUserWithEmailAndPassword(auth, email, password)
         .then((cred) => {
-            console.log(cred.user);
             // close the signup modal & reset form
             const modal = document.querySelector("#modal-signup");
             M.Modal.getInstance(modal).close();
@@ -30,26 +36,25 @@ const logout = document.querySelector("#logout");
 logout.addEventListener("click", (e) => {
     e.preventDefault();
     firebaseAuth.signOut(auth).then(() => {
-        console.log("user signed out");
     });
 });
 
 // login
-const loginForm = document.querySelector('#login-form');
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  
-  // get user info
-  const email = loginForm['login-email'].value;
-  const password = loginForm['login-password'].value;
+const loginForm = document.querySelector("#login-form");
+loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-  // log the user in
-  firebaseAuth.signInWithEmailAndPassword(auth, email, password).then((cred) => {
-    console.log(cred.user);
-    // close the signup modal & reset form
-    const modal = document.querySelector('#modal-login');
-    M.Modal.getInstance(modal).close();
-    loginForm.reset();
-  });
+    // get user info
+    const email = loginForm["login-email"].value;
+    const password = loginForm["login-password"].value;
 
+    // log the user in
+    firebaseAuth
+        .signInWithEmailAndPassword(auth, email, password)
+        .then((cred) => {
+            // close the signup modal & reset form
+            const modal = document.querySelector("#modal-login");
+            M.Modal.getInstance(modal).close();
+            loginForm.reset();
+        });
 });
