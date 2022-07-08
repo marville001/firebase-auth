@@ -1,7 +1,15 @@
 // Signup
 import { app, firebaseStore, firebaseAuth } from "./init.js";
+import {setupGuides} from "./index.js"
 
 const auth = firebaseAuth.getAuth();
+const firestore = firebaseStore.getFirestore();
+
+const ref = firebaseStore.collection(firestore, "/guides");
+firebaseStore.getDocs(ref).then(snapshot => {
+	setupGuides(snapshot.docs);
+})
+
 
 // listen for auth status changes
 firebaseAuth.onAuthStateChanged(auth, (user) => {
@@ -35,8 +43,7 @@ signupForm.addEventListener("submit", (e) => {
 const logout = document.querySelector("#logout");
 logout.addEventListener("click", (e) => {
     e.preventDefault();
-    firebaseAuth.signOut(auth).then(() => {
-    });
+    firebaseAuth.signOut(auth).then(() => {});
 });
 
 // login
