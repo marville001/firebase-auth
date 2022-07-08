@@ -1,22 +1,21 @@
 // Signup
 import { app, firebaseStore, firebaseAuth } from "./init.js";
-import {setupGuides} from "./index.js"
+import { setupGuides } from "./index.js";
 
 const auth = firebaseAuth.getAuth();
 const firestore = firebaseStore.getFirestore();
-
-const ref = firebaseStore.collection(firestore, "/guides");
-firebaseStore.getDocs(ref).then(snapshot => {
-	setupGuides(snapshot.docs);
-})
-
 
 // listen for auth status changes
 firebaseAuth.onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("user logged in: ", user);
+        const ref = firebaseStore.collection(firestore, "/guides");
+        firebaseStore.getDocs(ref).then((snapshot) => {
+            setupGuides(snapshot.docs);
+        });
     } else {
-        console.log("user logged out");
+		console.log("user logged out");
+		setupGuides([]);
     }
 });
 
