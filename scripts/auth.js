@@ -4,21 +4,44 @@ import { setupGuides, setupUI } from "./index.js";
 
 const auth = firebaseAuth.getAuth();
 const firestore = firebaseStore.getFirestore();
+const guidesRef = firebaseStore.collection(firestore, "/guides");
 
 // listen for auth status changes
 firebaseAuth.onAuthStateChanged(auth, (user) => {
     if (user) {
         setupUI(user);
-        const ref = firebaseStore.collection(firestore, "/guides");
-        firebaseStore.getDocs(ref).then((snapshot) => {
+        firebaseStore.getDocs(guidesRef).then((snapshot) => {
             setupGuides(snapshot.docs);
         });
-	} else {
-		setupUI();
+    } else {
+        setupUI();
         setupGuides([]);
     }
 });
 
+console.log(firebaseStore);
+
+// create new guide
+const createForm = document.querySelector("#create-form");
+createForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    firebaseStore
+        .addDoc(guidesRef, {
+            title: createForm.title.value,
+            content: createForm.content.value,
+        })
+        .then(() => {
+            // close the create modal & reset form
+            const modal = document.querySelector("#modal-create");
+            M.Modal.getInstance(modal).close();
+            createForm.reset();
+        })
+        .catch((err) => {
+            console.log(err.message);
+        });
+});
+
+// Sign up
 const signupForm = document.querySelector("#signup-form");
 signupForm.addEventListener("submit", (e) => {
     e.preventDefault();
